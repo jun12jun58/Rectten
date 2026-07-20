@@ -23,35 +23,46 @@
         --bomb-bg: #1f1f1f;
     }
     * { box-sizing: border-box; }
+    html, body {
+        height: 100%;
+        overscroll-behavior: none;
+    }
     body {
         margin: 0;
-        padding: 24px 16px;
+        padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
         background: var(--bg);
         color: var(--ink);
         font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         overflow: hidden;
         touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
     }
     .app {
-        width: 300px;
+        container-type: inline-size;
+        width: min(94vw, 420px);
         margin: 0 auto;
     }
     .topbar {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        margin-bottom: 14px;
+        margin-bottom: 4.6cqw;
     }
     .topbar h1 {
         margin: 0;
-        font-size: 21px;
+        font-size: 7cqw;
         font-weight: 800;
         letter-spacing: -0.02em;
         color: #000000;
     }
     #score {
-        font-size: 20px;
+        font-size: 6.6cqw;
         font-weight: 800;
         color: #3452eb;
         font-variant-numeric: tabular-nums;
@@ -59,27 +70,27 @@
     .hud {
         display: flex;
         justify-content: flex-end;
-        min-height: 22px;
-        margin-bottom: 6px;
+        min-height: 7.3cqw;
+        margin-bottom: 2cqw;
     }
     #comboBadge {
         display: none;
         background: var(--bonus);
         color: #ffffff;
-        font-size: 12px;
+        font-size: 4cqw;
         font-weight: 800;
-        padding: 3px 10px;
+        padding: 1cqw 3.3cqw;
         border-radius: 20px;
         letter-spacing: -0.01em;
     }
     #comboBadge.show { display: inline-block; }
     .timer-track {
         width: 100%;
-        height: 8px;
+        height: 2.6cqw;
         background: var(--line);
         border-radius: 4px;
         overflow: hidden;
-        margin-bottom: 10px;
+        margin-bottom: 3.3cqw;
     }
     #timerBar {
         width: 100%;
@@ -89,9 +100,9 @@
     }
     .canvas-wrap {
         position: relative;
-        width: 300px;
-        height: 400px;
-        margin-top: 18px;
+        width: 100%;
+        aspect-ratio: 3 / 4;
+        margin-top: 6cqw;
         overflow: visible;
     }
     #selectionSum {
@@ -107,8 +118,8 @@
     }
     canvas {
         display: block;
-        width: 300px;
-        height: 400px;
+        width: 100%;
+        height: 100%;
         background: #ffffff;
         border: 1px solid var(--line);
         border-radius: 12px;
@@ -128,21 +139,28 @@
         padding: 24px;
     }
     .overlay[hidden] { display: none; }
+    .overlay h1 {
+        margin: 0 0 8px;
+        font-size: 7.3cqw;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #000000;
+    }
     .overlay h2 {
         margin: 0 0 8px;
-        font-size: 22px;
+        font-size: 7.3cqw;
         font-weight: 800;
         letter-spacing: -0.02em;
     }
     .overlay .rule {
         margin: 0 0 18px;
-        font-size: 15px;
+        font-size: 5cqw;
         line-height: 1.6;
         color: var(--muted);
-        max-width: 240px;
+        max-width: 80%;
     }
     .final-score {
-        font-size: 40px;
+        font-size: 13.3cqw;
         font-weight: 800;
         color: var(--accent);
         font-variant-numeric: tabular-nums;
@@ -153,10 +171,10 @@
         border: none;
         background: var(--accent);
         color: #ffffff;
-        font-size: 16px;
+        font-size: 5.3cqw;
         font-weight: 700;
         letter-spacing: -0.01em;
-        padding: 12px 30px;
+        padding: 4cqw 10cqw;
         border-radius: 8px;
         cursor: pointer;
     }
@@ -213,6 +231,24 @@ const restartBtn = document.getElementById('restartBtn');
 const COLS = 6;
 const ROWS = 8;
 const BLOCK_SIZE = 50;
+const LOGICAL_WIDTH = COLS * BLOCK_SIZE;
+const LOGICAL_HEIGHT = ROWS * BLOCK_SIZE;
+let displayScale = 1;
+
+function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    const dpr = window.devicePixelRatio || 1;
+
+    displayScale = rect.width / LOGICAL_WIDTH;
+
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(displayScale * dpr, 0, 0, displayScale * dpr, 0, 0);
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', resizeCanvas);
 
 const BASE_TIME_LIMIT = 15;
 const MIN_TIME_LIMIT = 7;
@@ -596,7 +632,7 @@ function triggerGameOver() {
 }
 
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
     for (let r = 0; r < ROWS; r++) {
         for (let c = 0; c < COLS; c++) {
@@ -668,8 +704,8 @@ function draw() {
 
         selectionSumEl.textContent = `${total}`;
         selectionSumEl.style.color = color;
-        selectionSumEl.style.left = `${x + w / 2}px`;
-        selectionSumEl.style.top = `${y - 2}px`;
+        selectionSumEl.style.left = `${(x + w / 2) * displayScale}px`;
+        selectionSumEl.style.top = `${(y - 2) * displayScale}px`;
         selectionSumEl.style.display = 'block';
     } else {
         selectionSumEl.style.display = 'none';
@@ -808,8 +844,8 @@ function getGridPos(e) {
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
+    const scaleX = LOGICAL_WIDTH / rect.width;
+    const scaleY = LOGICAL_HEIGHT / rect.height;
 
     const c = Math.max(0, Math.min(COLS - 1, Math.floor(((clientX - rect.left) * scaleX) / BLOCK_SIZE)));
     const r = Math.max(0, Math.min(ROWS - 1, Math.floor(((clientY - rect.top) * scaleY) / BLOCK_SIZE)));
@@ -896,6 +932,7 @@ function startGame() {
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
+resizeCanvas();
 initGrid();
 requestAnimationFrame(gameLoop);
 </script>
