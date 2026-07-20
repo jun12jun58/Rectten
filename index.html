@@ -252,18 +252,18 @@ const SOUND_FILES = {
     click: 'sounds/click.mp3'
 };
 
-async function loadSounds() {
-    if (!audioCtx) audioCtx = new AudioContext();
+function loadSounds() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    for (const [key, url] of Object.entries(SOUND_FILES)) {
-        try {
-            const response = await fetch(url);
-            const arrayBuffer = await response.arrayBuffer();
-            audioBuffers[key] = await audioCtx.decodeAudioData(arrayBuffer);
-        } catch (e) {
-            console.error(`Sound Load Failed: ${key}`, e);
-        }
-    }
+    Object.entries(SOUND_FILES).forEach(([key, url]) => {
+        fetch(url)
+            .then(res => res.arrayBuffer())
+            .then(buffer => audioCtx.decodeAudioData(buffer))
+            .then(decoded => {
+                audioBuffers[key] = decoded;
+            })
+            .catch(e => console.error(`사운드 로드 실패: ${key}`, e));
+    });
 }
 
 function playSound(name, volume = 1.0) {
@@ -273,16 +273,20 @@ function playSound(name, volume = 1.0) {
         audioCtx.resume();
     }
 
-    const source = audioCtx.createBufferSource();
-    const gainNode = audioCtx.createGain();
+    try {
+        const source = audioCtx.createBufferSource();
+        const gainNode = audioCtx.createGain();
 
-    source.buffer = audioBuffers[name];
-    gainNode.gain.value = volume;
+        source.buffer = audioBuffers[name];
+        gainNode.gain.value = volume;
 
-    source.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
 
-    source.start(0);
+        source.start(0);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 function getCurrentTimeLimit() {
@@ -869,12 +873,12 @@ canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e);
 canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e); });
 canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(); });
 
-async function startGame() {
+function startGame() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        await loadSounds();
+        loadSounds();
     } else if (audioCtx.state === 'suspended') {
-        await audioCtx.resume();
+        audioCtx.resume();
     }
 
     startScreen.hidden = true;
@@ -884,7 +888,8 @@ async function startGame() {
     initGrid();
 
     tickTimer = 0;
-    playSound('click'); // 문자열 키 전달
+    playSound('click');
+
     gameStarted = true;
     gameRunning = true;
     lastTime = performance.now();
