@@ -96,7 +96,7 @@
     }
     #selectionSum {
         position: absolute;
-        transform: translate(-50%, -90%);
+        transform: translate(-50%, -100%);
         font-size: 14px;
         font-weight: 800;
         pointer-events: none;
@@ -238,7 +238,6 @@ const PALETTE = {
     bombBg: '#111111', bombText: '#ffffff',
     selectValid: '#16a34a', selectInvalid: '#3452eb'
 };
-
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 const audioBuffers = {};
@@ -670,7 +669,7 @@ function draw() {
         selectionSumEl.textContent = `${total}`;
         selectionSumEl.style.color = color;
         selectionSumEl.style.left = `${x + w / 2}px`;
-        selectionSumEl.style.top = `${y - 4}px`;
+        selectionSumEl.style.top = `${y - 2}px`;
         selectionSumEl.style.display = 'block';
     } else {
         selectionSumEl.style.display = 'none';
