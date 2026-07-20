@@ -705,7 +705,7 @@ function draw() {
         selectionSumEl.textContent = `${total}`;
         selectionSumEl.style.color = color;
         selectionSumEl.style.left = `${(x + w / 2) * displayScale}px`;
-        selectionSumEl.style.top = `${y * displayScale}px`;
+        selectionSumEl.style.top = `${(y + 1) * displayScale}px`;
         selectionSumEl.style.display = 'block';
     } else {
         selectionSumEl.style.display = 'none';
