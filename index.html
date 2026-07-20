@@ -41,7 +41,7 @@
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        margin-bottom: 10px;
+        margin-bottom: 14px;
     }
     .topbar h1 {
         margin: 0;
@@ -73,24 +73,6 @@
         letter-spacing: -0.01em;
     }
     #comboBadge.show { display: inline-block; }
-    
-    .sum-slot {
-        position: relative;
-        height: 20px;
-        width: 100%;
-    }
-    #selectionSum {
-        position: absolute;
-        transform: translate(-50%, 0);
-        font-size: 14px;
-        font-weight: 800;
-        pointer-events: none;
-        display: none;
-        z-index: 10;
-        white-space: nowrap;
-        line-height: 1;
-    }
-
     .timer-track {
         width: 100%;
         height: 8px;
@@ -109,7 +91,19 @@
         position: relative;
         width: 300px;
         height: 400px;
+        margin-top: 18px;
         overflow: visible;
+    }
+    #selectionSum {
+        position: absolute;
+        transform: translate(-50%, -90%);
+        font-size: 14px;
+        font-weight: 800;
+        pointer-events: none;
+        display: none;
+        z-index: 5;
+        white-space: nowrap;
+        text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9);
     }
     canvas {
         display: block;
@@ -182,15 +176,12 @@
         <span id="comboBadge">x2 Combo</span>
     </div>
 
-    <div class="sum-slot">
-        <div id="selectionSum"></div>
-    </div>
-
     <div class="timer-track">
         <div id="timerBar"></div>
     </div>
 
     <div class="canvas-wrap">
+        <div id="selectionSum"></div>
         <canvas id="canvas" width="300" height="400"></canvas>
         <div class="overlay" id="startScreen">
             <h1>Rectten</h1>
@@ -218,7 +209,6 @@ const gameOverScreen = document.getElementById('gameOverScreen');
 const finalScoreEl = document.getElementById('finalScore');
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
-const selectionSumEl = document.getElementById('selectionSum');
 
 const COLS = 6;
 const ROWS = 8;
@@ -249,7 +239,6 @@ const PALETTE = {
     selectValid: '#16a34a', selectInvalid: '#3452eb'
 };
 
-// Web Audio API 비동기 안전 로더
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 const audioBuffers = {};
@@ -263,6 +252,8 @@ const SOUND_FILES = {
     click: 'sounds/click.mp3'
 };
 
+const selectionSumEl = document.getElementById('selectionSum');
+
 function loadSounds() {
     if (!audioCtx) audioCtx = new AudioContext();
 
@@ -273,7 +264,7 @@ function loadSounds() {
             .then(decoded => {
                 audioBuffers[key] = decoded;
             })
-            .catch(e => {}); // 사운드 로드 안 되어도 게임에 영향 없게 무시
+            .catch(e => {});
     });
 }
 
@@ -529,7 +520,6 @@ function initGrid() {
     isCombo = false;
     comboBadge.classList.remove('show');
     timerBar.style.background = 'var(--accent)';
-    selectionSumEl.style.display = 'none';
 }
 
 function updatePhysics(dt) {
@@ -601,7 +591,6 @@ function updateTimer(dt) {
 function triggerGameOver() {
     gameRunning = false;
     isSelecting = false;
-    selectionSumEl.style.display = 'none';
     playSound('end');
     finalScoreEl.textContent = score;
     gameOverScreen.hidden = false;
@@ -678,9 +667,10 @@ function draw() {
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
-        selectionSumEl.textContent = `합: ${total}`;
+        selectionSumEl.textContent = `${total}`;
         selectionSumEl.style.color = color;
         selectionSumEl.style.left = `${x + w / 2}px`;
+        selectionSumEl.style.top = `${y - 4}px`;
         selectionSumEl.style.display = 'block';
     } else {
         selectionSumEl.style.display = 'none';
@@ -842,7 +832,6 @@ function handleStart(e) {
         );
         triggerBonusState();
         isSelecting = false;
-        selectionSumEl.style.display = 'none';
         return;
     }
 
@@ -900,7 +889,6 @@ function startGame() {
 
     tickTimer = 0;
     playSound('click');
-
     gameStarted = true;
     gameRunning = true;
     lastTime = performance.now();
