@@ -239,22 +239,50 @@ const PALETTE = {
     selectValid: '#16a34a', selectInvalid: '#3452eb'
 };
 
-const SOUNDS = {
-    pop: new Audio('sounds/pop.mp3'),
-    bomb: new Audio('sounds/bomb.mp3'),
-    clock: new Audio('sounds/clock.mp3'),
-    combo: new Audio('sounds/combo.mp3'),
-    end: new Audio('sounds/end.mp3'),
-    click: new Audio('sounds/click.mp3')
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+const audioBuffers = {};
+
+const SOUND_FILES = {
+    pop: 'sounds/pop.mp3',
+    bomb: 'sounds/bomb.mp3',
+    clock: 'sounds/clock.mp3',
+    combo: 'sounds/combo.mp3',
+    end: 'sounds/end.mp3',
+    click: 'sounds/click.mp3'
 };
-SOUNDS.clock.volume = 0.5;
 
-const selectionSumEl = document.getElementById('selectionSum');
+async function loadSounds() {
+    if (!audioCtx) audioCtx = new AudioContext();
 
-function playSound(audio) {
-    if (!audio) return;
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
+    for (const [key, url] of Object.entries(SOUND_FILES)) {
+        try {
+            const response = await fetch(url);
+            const arrayBuffer = await response.arrayBuffer();
+            audioBuffers[key] = await audioCtx.decodeAudioData(arrayBuffer);
+        } catch (e) {
+            console.error(`Sound Load Failed: ${key}`, e);
+        }
+    }
+}
+
+function playSound(name, volume = 1.0) {
+    if (!audioCtx || !audioBuffers[name]) return;
+
+    if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+    }
+
+    const source = audioCtx.createBufferSource();
+    const gainNode = audioCtx.createGain();
+
+    source.buffer = audioBuffers[name];
+    gainNode.gain.value = volume;
+
+    source.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    source.start(0);
 }
 
 function getCurrentTimeLimit() {
@@ -542,7 +570,7 @@ function updateTimer(dt) {
         }
 
         if (tickTimer >= currentInterval) {
-            playSound(SOUNDS.clock);
+            playSound('clock', 0.5);
             tickTimer %= currentInterval;
         }
     }
@@ -559,7 +587,7 @@ function updateTimer(dt) {
 function triggerGameOver() {
     gameRunning = false;
     isSelecting = false;
-    playSound(SOUNDS.end);
+    playSound('end');
     finalScoreEl.textContent = score;
     gameOverScreen.hidden = false;
 }
@@ -687,11 +715,11 @@ function processExplosionAndGravity(selectedCells, bombCells) {
     const cellsToDestroySet = new Set(selectedCells.map(JSON.stringify));
 
     if (bombCells.length > 0) {
-        playSound(SOUNDS.bomb);
+        playSound('bomb');
     } else if (isCombo) {
-        playSound(SOUNDS.combo);
+        playSound('combo');
     } else {
-        playSound(SOUNDS.pop);
+        playSound('pop');
     }
 
     bombCells.forEach(([bR, bC]) => {
@@ -841,7 +869,14 @@ canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e);
 canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e); });
 canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(); });
 
-function startGame() {
+async function startGame() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        await loadSounds();
+    } else if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+
     startScreen.hidden = true;
     gameOverScreen.hidden = true;
     score = 0;
@@ -849,7 +884,7 @@ function startGame() {
     initGrid();
 
     tickTimer = 0;
-    playSound(SOUNDS.click);
+    playSound('click'); // 문자열 키 전달
     gameStarted = true;
     gameRunning = true;
     lastTime = performance.now();
