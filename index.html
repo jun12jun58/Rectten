@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Rectten</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<style>
+    :root {
+        --bg: #ffffff;
+        --ink: #171717;
+        --muted: #8a8a93;
+        --line: #e6e6e9;
+        --accent: #3452eb;
+        --accent-dark: #2a41bf;
+        --danger: #e0483e;
+        --success: #16a34a;
+        --bonus: #f5a623;
+        --tile-bg: #fafafa;
+        --tile-border: #dcdce0;
+        --neg-bg: #fdeceb;
+        --neg-border: #f0b8b3;
+        --neg-text: #c23b32;
+        --bomb-bg: #1f1f1f;
+    }
+    * { box-sizing: border-box; }
+    body {
+        margin: 0;
+        padding: 24px 16px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+        min-height: 100vh;
+        overflow: hidden;
+        touch-action: none;
+    }
+    .app {
+        width: 300px;
+        margin: 0 auto;
+    }
+    .topbar {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+    .topbar h1 {
+        margin: 0;
+        font-size: 21px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #000000;
+    }
+    #score {
+        font-size: 20px;
+        font-weight: 800;
+        color: #3452eb;
+        font-variant-numeric: tabular-nums;
+    }
+    .hud {
+        display: flex;
+        justify-content: flex-end;
+        min-height: 22px;
+        margin-bottom: 6px;
+    }
+    #comboBadge {
+        display: none;
+        background: var(--bonus);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 3px 10px;
+        border-radius: 20px;
+        letter-spacing: -0.01em;
+    }
+    #comboBadge.show { display: inline-block; }
+    .timer-track {
+        width: 100%;
+        height: 8px;
+        background: var(--line);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 10px;
+    }
+    #timerBar {
+        width: 100%;
+        height: 100%;
+        background: var(--accent);
+        transition: width 0.1s linear, background-color 0.2s;
+    }
+    .canvas-wrap {
+        position: relative;
+        width: 300px;
+        height: 400px;
+        margin-top: 18px;
+        overflow: visible;
+    }
+    #selectionSum {
+        position: absolute;
+        transform: translate(-50%, -90%);
+        font-size: 14px;
+        font-weight: 800;
+        pointer-events: none;
+        display: none;
+        z-index: 5;
+        white-space: nowrap;
+        text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9);
+    }
+    canvas {
+        display: block;
+        width: 300px;
+        height: 400px;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        touch-action: none;
+    }
+    .overlay {
+        position: absolute;
+        inset: 0;
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 24px;
+    }
+    .overlay[hidden] { display: none; }
+    .overlay h2 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+    .overlay .rule {
+        margin: 0 0 18px;
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--muted);
+        max-width: 240px;
+    }
+    .final-score {
+        font-size: 40px;
+        font-weight: 800;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+        margin-bottom: 22px;
+    }
+    .btn {
+        appearance: none;
+        border: none;
+        background: var(--accent);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        padding: 12px 30px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    .btn:hover { background: var(--accent-dark); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+    <div class="topbar">
+        <h1>Rectten</h1>
+        <div id="score">0</div>
+    </div>
+
+    <div class="hud">
+        <span id="comboBadge">x2 Combo</span>
+    </div>
+
+    <div class="timer-track">
+        <div id="timerBar"></div>
+    </div>
+
+    <div class="canvas-wrap">
+        <div id="selectionSum"></div>
+        <canvas id="canvas" width="300" height="400"></canvas>
+        <div class="overlay" id="startScreen">
+            <h1>Rectten</h1>
+            <p class="rule">사각형을 그려서 안에 있는 숫자의 합이 10이 되면 블록이 사라집니다.</p>
+            <button class="btn" id="startBtn">시작</button>
+        </div>
+
+        <div class="overlay" id="gameOverScreen" hidden>
+            <h2>게임 종료</h2>
+            <p class="rule">최종 점수</p>
+            <div class="final-score" id="finalScore">0</div>
+            <button class="btn" id="restartBtn">다시 시작</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const scoreEl = document.getElementById('score');
+const comboBadge = document.getElementById('comboBadge');
+const timerBar = document.getElementById('timerBar');
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const finalScoreEl = document.getElementById('finalScore');
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+const COLS = 6;
+const ROWS = 8;
+const BLOCK_SIZE = 50;
+
+const BASE_TIME_LIMIT = 15;
+const MIN_TIME_LIMIT = 7;
+const TIME_DECAY_PER_SCORE = 0.0008;
+const COMBO_WINDOW = 3.0;
+
+const NEGATIVE_RATE = 0.10;
+const COMBO_ASSIST_RATE = 0.35;
+const GROUP_SIZES = [3, 4];
+const BOMB_SPAWN_RATE = 0.15;
+const GRAVITY = 1200;
+
+const POS_PALETTE = [
+    { bg: '#dbeafe', border: '#60a5fa', text: '#1d4ed8' },
+    { bg: '#dcfce7', border: '#4ade80', text: '#15803d' },
+    { bg: '#fef3c7', border: '#fbbf24', text: '#b45309' },
+    { bg: '#f5e7ff', border: '#c084fc', text: '#7e22ce' },
+    { bg: '#ccfbf1', border: '#2dd4bf', text: '#0f766e' }
+];
+
+const PALETTE = {
+    negBg: '#fee2e2', negBorder: '#f87171', negText: '#b91c1c',
+    bombBg: '#111111', bombText: '#ffffff',
+    selectValid: '#16a34a', selectInvalid: '#3452eb'
+};
+
+const SOUNDS = {
+    pop: new Audio('sounds/pop.mp3'),
+    bomb: new Audio('sounds/bomb.mp3'),
+    clock: new Audio('sounds/clock.mp3'),
+    combo: new Audio('sounds/combo.mp3'),
+    end: new Audio('sounds/end.mp3'),
+    click: new Audio('sounds/click.mp3')
+};
+SOUNDS.clock.volume = 0.5;
+
+const selectionSumEl = document.getElementById('selectionSum');
+
+function playSound(audio) {
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+}
+
+function getCurrentTimeLimit() {
+    return Math.max(MIN_TIME_LIMIT, BASE_TIME_LIMIT - score * TIME_DECAY_PER_SCORE);
+}
+
+let currentTimeLimit = BASE_TIME_LIMIT;
+let remainingTime = BASE_TIME_LIMIT;
+let lastTime = performance.now();
+
+let comboTimer = 0;
+let isCombo = false;
+
+let grid = [];
+let particles = [];
+let shockwaves = [];
+let floatingTexts = [];
+let score = 0;
+let gameStarted = false;
+let gameRunning = false;
+
+let isSelecting = false;
+let startCol = -1, startRow = -1;
+let currentCol = -1, currentRow = -1;
+
+let columnWindow = Array.from({ length: COLS }, () => []);
+let tickTimer = 0;
+
+function pushToWindow(col, value) {
+    const w = columnWindow[col];
+    w.push(value);
+    if (w.length > 3) w.shift();
+}
+
+function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+}
+
+function countBombs() {
+    return grid.flat().filter(block => block && block.isBomb).length;
+}
+
+function getRandomNum(col) {
+    const colWindow = columnWindow[col];
+
+    if (colWindow.length >= 2 && Math.random() < COMBO_ASSIST_RATE) {
+        const groupSize = GROUP_SIZES[Math.floor(Math.random() * GROUP_SIZES.length)];
+        const need = groupSize - 1;
+        if (colWindow.length >= need) {
+            const recent = colWindow.slice(-need);
+            const partialSum = recent.reduce((a, b) => a + b, 0);
+            const complement = 10 - partialSum;
+            const lastOne = recent[recent.length - 1];
+            const lastTwo = recent.length >= 2 ? recent[recent.length - 1] + recent[recent.length - 2] : null;
+            if (lastOne !== 10 && lastTwo !== 10 && complement >= 1 && complement <= 9) {
+                pushToWindow(col, complement);
+                return complement;
+            }
+        }
+    }
+
+    const r = Math.random();
+    let value;
+    if (r < NEGATIVE_RATE) {
+        value = Math.floor(Math.random() * 3) - 3;
+        columnWindow[col] = [];
+        return value;
+    }
+    if (r < NEGATIVE_RATE + 0.50) {
+        value = Math.floor(Math.random() * 3) + 1;
+    } else if (r < NEGATIVE_RATE + 0.75) {
+        value = Math.floor(Math.random() * 3) + 4;
+    } else {
+        value = Math.floor(Math.random() * 3) + 7;
+    }
+    pushToWindow(col, value);
+    return value;
+}
+
+function createBlock(targetR, c, startR) {
+    const num = getRandomNum(c);
+    const block = {
+        num,
+        isBomb: false,
+        y: startR * BLOCK_SIZE,
+        targetY: targetR * BLOCK_SIZE,
+        vy: 0,
+        settled: startR === targetR
+    };
+    if (num > 0) block.palette = Math.floor(Math.random() * POS_PALETTE.length);
+    return block;
+}
+
+function tryTransformRandomBlockToBomb() {
+    if (countBombs() >= 1 || Math.random() >= BOMB_SPAWN_RATE) return;
+
+    const candidates = grid.flat().filter(block => block && !block.isBomb);
+    if (candidates.length === 0) return;
+    const block = candidates[Math.floor(Math.random() * candidates.length)];
+    block.isBomb = true;
+    block.num = '💣';
+}
+
+function createExplosionEffect(x, y) {
+    const particleColors = ['#1f1f1f', '#3452eb', '#8a8a93', '#c9c9cf'];
+    for (let i = 0; i < 18; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 5 + 2;
+        particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: Math.random() * 3 + 2,
+            color: particleColors[Math.floor(Math.random() * particleColors.length)],
+            alpha: 1,
+            life: Math.random() * 0.25 + 0.25
+        });
+    }
+}
+
+function popBlockEffect(block, x, y) {
+    const color = block.num < 0 ? PALETTE.negText : POS_PALETTE[block.palette].text;
+    for (let i = 0; i < 7; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 3 + 1.5;
+        particles.push({
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            radius: Math.random() * 2.5 + 1.5,
+            color,
+            alpha: 1,
+            life: Math.random() * 0.25 + 0.25
+        });
+    }
+}
+
+function createShockwave(x, y) {
+    shockwaves.push({ x, y, radius: 8, alpha: 0.6 });
+}
+
+function spawnFloatingText(x, y, text, color) {
+    floatingTexts.push({ x, y, text, color, alpha: 1, vy: -42 });
+}
+
+function updateParticles(dt) {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= dt / p.life;
+        if (p.alpha <= 0) particles.splice(i, 1);
+    }
+}
+
+function updateShockwaves(dt) {
+    for (let i = shockwaves.length - 1; i >= 0; i--) {
+        const s = shockwaves[i];
+        s.radius += 150 * dt;
+        s.alpha -= dt * 1.6;
+        if (s.alpha <= 0) shockwaves.splice(i, 1);
+    }
+}
+
+function updateFloatingTexts(dt) {
+    for (let i = floatingTexts.length - 1; i >= 0; i--) {
+        const t = floatingTexts[i];
+        t.y += t.vy * dt;
+        t.alpha -= dt * 0.9;
+        if (t.alpha <= 0) floatingTexts.splice(i, 1);
+    }
+}
+
+function drawParticles() {
+    particles.forEach(p => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+    });
+}
+
+function drawShockwaves() {
+    shockwaves.forEach(s => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, s.alpha);
+        ctx.strokeStyle = PALETTE.bombBg;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    });
+}
+
+function drawFloatingTexts() {
+    floatingTexts.forEach(t => {
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, t.alpha);
+        ctx.fillStyle = t.color;
+        ctx.font = 'bold 16px -apple-system, "Malgun Gothic", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(t.text, t.x, t.y);
+        ctx.restore();
+    });
+}
+
+function initGrid() {
+    grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
+    particles = [];
+    shockwaves = [];
+    floatingTexts = [];
+    columnWindow = Array.from({ length: COLS }, () => []);
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            grid[r][c] = createBlock(r, c, r);
+        }
+    }
+    currentTimeLimit = getCurrentTimeLimit();
+    remainingTime = currentTimeLimit;
+    isCombo = false;
+    comboBadge.classList.remove('show');
+    timerBar.style.background = 'var(--accent)';
+}
+
+function updatePhysics(dt) {
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const block = grid[r][c];
+            if (!block || block.settled) continue;
+
+            block.vy += GRAVITY * dt;
+            block.y += block.vy * dt;
+
+            if (block.y >= block.targetY) {
+                block.y = block.targetY;
+                block.vy = 0;
+                block.settled = true;
+            }
+        }
+    }
+}
+
+function updateTimer(dt) {
+    remainingTime -= dt;
+
+    if (comboTimer > 0) {
+        comboTimer -= dt;
+        if (comboTimer <= 0) {
+            isCombo = false;
+            comboBadge.classList.remove('show');
+        }
+    }
+
+    if (remainingTime <= 0) {
+        remainingTime = 0;
+        triggerGameOver();
+        return;
+    }
+
+    const percentage = Math.max(0, (remainingTime / currentTimeLimit) * 100);
+    timerBar.style.width = percentage + '%';
+
+    if (gameRunning) {
+        tickTimer += dt;
+        let currentInterval;
+
+        if (percentage >= 75) {
+            currentInterval = 0.7;
+        } else if (percentage >= 8) {
+            const progress = (70 - percentage) / 62;
+            currentInterval = 0.7 - progress * 0.6;
+        } else {
+            currentInterval = 0.1;
+        }
+
+        if (tickTimer >= currentInterval) {
+            playSound(SOUNDS.clock);
+            tickTimer %= currentInterval;
+        }
+    }
+
+    if (isCombo) {
+        timerBar.style.background = '#f5a623';
+    } else if (percentage < 30) {
+        timerBar.style.background = '#e0483e';
+    } else {
+        timerBar.style.background = '#3452eb';
+    }
+}
+
+function triggerGameOver() {
+    gameRunning = false;
+    isSelecting = false;
+    playSound(SOUNDS.end);
+    finalScoreEl.textContent = score;
+    gameOverScreen.hidden = false;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const block = grid[r][c];
+            if (!block) continue;
+            const x = c * BLOCK_SIZE;
+            const y = block.y;
+
+            if (block.isBomb) {
+                ctx.save();
+                ctx.font = `${BLOCK_SIZE * 0.6}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('💣', x + BLOCK_SIZE / 2, y + BLOCK_SIZE / 2);
+                ctx.restore();
+            } else {
+                const neg = block.num < 0;
+                const style = neg ? null : POS_PALETTE[block.palette];
+                const drawW = BLOCK_SIZE - 4;
+                const drawH = BLOCK_SIZE - 4;
+
+                ctx.save();
+                ctx.translate(x + BLOCK_SIZE / 2, y + BLOCK_SIZE / 2);
+
+                ctx.fillStyle = neg ? PALETTE.negBg : style.bg;
+                ctx.strokeStyle = neg ? PALETTE.negBorder : style.border;
+                ctx.lineWidth = 1;
+                roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = neg ? PALETTE.negText : style.text;
+                ctx.font = '500 20px -apple-system, "Malgun Gothic", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(block.num, 0, 0);
+
+                ctx.restore();
+            }
+        }
+    }
+
+    if (isSelecting && startCol >= 0 && currentCol >= 0) {
+        const minC = Math.min(startCol, currentCol);
+        const maxC = Math.max(startCol, currentCol);
+        const minR = Math.min(startRow, currentRow);
+        const maxR = Math.max(startRow, currentRow);
+
+        const { total } = getSumInRect(startCol, startRow, currentCol, currentRow);
+        const valid = total === 10;
+
+        const padding = 2;
+        const x = minC * BLOCK_SIZE + padding;
+        const y = minR * BLOCK_SIZE + padding;
+        const w = (maxC - minC + 1) * BLOCK_SIZE - padding * 2;
+        const h = (maxR - minR + 1) * BLOCK_SIZE - padding * 2;
+        const color = valid ? PALETTE.selectValid : PALETTE.selectInvalid;
+
+        roundRect(x, y, w, h, 8);
+
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        selectionSumEl.textContent = `${total}`;
+        selectionSumEl.style.color = color;
+        selectionSumEl.style.left = `${x + w / 2}px`;
+        selectionSumEl.style.top = `${y - 4}px`;
+        selectionSumEl.style.display = 'block';
+    } else {
+        selectionSumEl.style.display = 'none';
+    }
+
+    drawShockwaves();
+    drawParticles();
+    drawFloatingTexts();
+}
+
+function gameLoop(now) {
+    const dt = Math.min((now - lastTime) / 1000, 0.05);
+    lastTime = now;
+
+    updatePhysics(dt);
+    updateParticles(dt);
+    updateShockwaves(dt);
+    updateFloatingTexts(dt);
+    if (gameStarted && gameRunning) updateTimer(dt);
+    draw();
+
+    requestAnimationFrame(gameLoop);
+}
+
+function getSumInRect(c1, r1, c2, r2) {
+    let total = 0;
+    const cells = [];
+    const bombCells = [];
+    const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
+    const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
+
+    for (let r = minR; r <= maxR; r++) {
+        for (let c = minC; c <= maxC; c++) {
+            const block = grid[r]?.[c];
+            if (block) {
+                if (block.isBomb) bombCells.push([r, c]);
+                else total += block.num;
+                cells.push([r, c]);
+            }
+        }
+    }
+    return { total, cells, bombCells };
+}
+
+function processExplosionAndGravity(selectedCells, bombCells) {
+    const cellsToDestroySet = new Set(selectedCells.map(JSON.stringify));
+
+    if (bombCells.length > 0) {
+        playSound(SOUNDS.bomb);
+    } else if (isCombo) {
+        playSound(SOUNDS.combo);
+    } else {
+        playSound(SOUNDS.pop);
+    }
+
+    bombCells.forEach(([bR, bC]) => {
+        const x = bC * BLOCK_SIZE + BLOCK_SIZE / 2;
+        const y = bR * BLOCK_SIZE + BLOCK_SIZE / 2;
+        createExplosionEffect(x, y);
+        createShockwave(x, y);
+        for (let r = bR - 1; r <= bR + 1; r++) {
+            for (let c = bC - 1; c <= bC + 1; c++) {
+                if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r]?.[c]) {
+                    cellsToDestroySet.add(JSON.stringify([r, c]));
+                }
+            }
+        }
+    });
+
+    const finalCellsToDestroy = Array.from(cellsToDestroySet, JSON.parse);
+    finalCellsToDestroy.forEach(([r, c]) => {
+        const block = grid[r]?.[c];
+        if (block) {
+            if (!block.isBomb) {
+                popBlockEffect(block, c * BLOCK_SIZE + BLOCK_SIZE / 2, block.y + BLOCK_SIZE / 2);
+            }
+            grid[r][c] = null;
+        }
+    });
+
+    for (let c = 0; c < COLS; c++) {
+        let emptyRow = ROWS - 1;
+        for (let r = ROWS - 1; r >= 0; r--) {
+            if (grid[r][c] !== null) {
+                if (r !== emptyRow) {
+                    grid[emptyRow][c] = grid[r][c];
+                    grid[emptyRow][c].targetY = emptyRow * BLOCK_SIZE;
+                    grid[emptyRow][c].settled = false;
+                    grid[r][c] = null;
+                }
+                emptyRow--;
+            }
+        }
+
+        const seed = [];
+        for (let k = 1; k <= 3; k++) {
+            const rr = emptyRow + k;
+            const b = rr < ROWS ? grid[rr]?.[c] : null;
+            if (b && !b.isBomb) {
+                seed.unshift(b.num);
+            } else {
+                break;
+            }
+        }
+        columnWindow[c] = seed;
+
+        let spawnOffset = 1;
+        for (let r = emptyRow; r >= 0; r--) {
+            grid[r][c] = createBlock(r, c, -spawnOffset);
+            spawnOffset++;
+        }
+    }
+
+    tryTransformRandomBlockToBomb();
+    return finalCellsToDestroy.length;
+}
+
+function triggerBonusState() {
+    isCombo = true;
+    comboTimer = COMBO_WINDOW;
+    comboBadge.classList.add('show');
+    currentTimeLimit = getCurrentTimeLimit();
+    remainingTime = currentTimeLimit;
+}
+
+function applyScore(destroyedCount) {
+    const multiplier = isCombo ? 2 : 1;
+    const points = destroyedCount * 20 * multiplier;
+    score += points;
+    scoreEl.textContent = score;
+    return points;
+}
+
+function getGridPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const c = Math.max(0, Math.min(COLS - 1, Math.floor(((clientX - rect.left) * scaleX) / BLOCK_SIZE)));
+    const r = Math.max(0, Math.min(ROWS - 1, Math.floor(((clientY - rect.top) * scaleY) / BLOCK_SIZE)));
+    return { c, r };
+}
+
+function handleStart(e) {
+    if (!gameStarted || !gameRunning) return;
+    const pos = getGridPos(e);
+
+    if (grid[pos.r]?.[pos.c]?.isBomb) {
+        const destroyedCount = processExplosionAndGravity([[pos.r, pos.c]], [[pos.r, pos.c]]);
+        const points = applyScore(destroyedCount);
+        spawnFloatingText(
+            pos.c * BLOCK_SIZE + BLOCK_SIZE / 2,
+            pos.r * BLOCK_SIZE + BLOCK_SIZE / 2,
+            `+${points}`,
+            isCombo ? '#f5a623' : '#3452eb'
+        );
+        triggerBonusState();
+        isSelecting = false;
+        return;
+    }
+
+    isSelecting = true;
+    startCol = currentCol = pos.c;
+    startRow = currentRow = pos.r;
+}
+
+function handleMove(e) {
+    if (!gameStarted || !gameRunning || !isSelecting) return;
+    const pos = getGridPos(e);
+    currentCol = pos.c;
+    currentRow = pos.r;
+}
+
+function handleEnd() {
+    if (!gameStarted || !gameRunning || !isSelecting) return;
+    const { total, cells, bombCells } = getSumInRect(startCol, startRow, currentCol, currentRow);
+
+    if (total === 10 && cells.length >= 2) {
+        const destroyedCount = processExplosionAndGravity(cells, bombCells);
+        const points = applyScore(destroyedCount);
+
+        const centerX = (Math.min(startCol, currentCol) + Math.max(startCol, currentCol) + 1) / 2 * BLOCK_SIZE;
+        const centerY = (Math.min(startRow, currentRow) + Math.max(startRow, currentRow) + 1) / 2 * BLOCK_SIZE;
+        spawnFloatingText(centerX, centerY, `+${points}`, isCombo ? '#f5a623' : '#3452eb');
+        triggerBonusState();
+    }
+
+    isSelecting = false;
+    startCol = startRow = currentCol = currentRow = -1;
+    selectionSumEl.style.display = 'none';
+}
+
+canvas.addEventListener('mousedown', handleStart);
+canvas.addEventListener('mousemove', handleMove);
+canvas.addEventListener('mouseup', handleEnd);
+canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e); });
+canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e); });
+canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(); });
+
+function startGame() {
+    startScreen.hidden = true;
+    gameOverScreen.hidden = true;
+    score = 0;
+    scoreEl.textContent = '0';
+    initGrid();
+
+    tickTimer = 0;
+    playSound(SOUNDS.click);
+    gameStarted = true;
+    gameRunning = true;
+    lastTime = performance.now();
+}
+
+startBtn.addEventListener('click', startGame);
+restartBtn.addEventListener('click', startGame);
+
+initGrid();
+requestAnimationFrame(gameLoop);
+</script>
+
+</body>
+</html>
