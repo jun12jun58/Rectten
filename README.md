@@ -1,4 +1,4 @@
-# Rectten 2026.7.20 ~ 2026.7.21
+# Rectten
 정보 프로그램 1-1
 
 이름: Rectten
