@@ -23,74 +23,72 @@
         --bomb-bg: #1f1f1f;
     }
     * { box-sizing: border-box; }
-    html, body {
-        height: 100%;
-        overscroll-behavior: none;
-    }
     body {
         margin: 0;
-        padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+        padding: 24px 16px;
         background: var(--bg);
         color: var(--ink);
         font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-        min-height: 100dvh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        min-height: 100vh;
         overflow: hidden;
         touch-action: none;
-        -webkit-tap-highlight-color: transparent;
-        -webkit-user-select: none;
-        user-select: none;
     }
     .app {
-        container-type: inline-size;
-        width: min(94vw, 420px);
+        width: 300px;
         margin: 0 auto;
     }
     .topbar {
         display: flex;
         align-items: baseline;
         justify-content: space-between;
-        margin-bottom: 4.6cqw;
+        margin-bottom: 14px;
     }
     .topbar h1 {
         margin: 0;
-        font-size: 7cqw;
+        font-size: 21px;
         font-weight: 800;
         letter-spacing: -0.02em;
         color: #000000;
     }
     #score {
-        font-size: 6.6cqw;
+        font-size: 20px;
         font-weight: 800;
         color: #3452eb;
         font-variant-numeric: tabular-nums;
     }
+    
     .hud {
         display: flex;
         justify-content: flex-end;
-        min-height: 7.3cqw;
-        margin-bottom: 2cqw;
+        align-items: center;
+        height: 24px; 
+        margin-bottom: 6px;
     }
     #comboBadge {
-        display: none;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.15s ease-in-out;
         background: var(--bonus);
         color: #ffffff;
-        font-size: 4cqw;
+        font-size: 12px;
         font-weight: 800;
-        padding: 1cqw 3.3cqw;
+        padding: 3px 10px;
         border-radius: 20px;
         letter-spacing: -0.01em;
     }
-    #comboBadge.show { display: inline-block; }
+    #comboBadge.show { 
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* 시간 바 간격을 올려 상단 숫자 표시와 겹치지 않게 조절 */
     .timer-track {
         width: 100%;
-        height: 2.6cqw;
+        height: 8px;
         background: var(--line);
         border-radius: 4px;
         overflow: hidden;
-        margin-bottom: 3.3cqw;
+        margin-bottom: 22px;
     }
     #timerBar {
         width: 100%;
@@ -100,11 +98,13 @@
     }
     .canvas-wrap {
         position: relative;
-        width: 100%;
-        aspect-ratio: 3 / 4;
-        margin-top: 6cqw;
+        width: 300px;
+        height: 400px;
+        margin-top: 0;
         overflow: visible;
     }
+
+    /* 사각형 항상 위에 표시되는 숫자 합 */
     #selectionSum {
         position: absolute;
         transform: translate(-50%, -100%);
@@ -112,14 +112,15 @@
         font-weight: 800;
         pointer-events: none;
         display: none;
-        z-index: 5;
+        z-index: 10;
         white-space: nowrap;
-        text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.9);
+        line-height: 1;
     }
+
     canvas {
         display: block;
-        width: 100%;
-        height: 100%;
+        width: 300px;
+        height: 400px;
         background: #ffffff;
         border: 1px solid var(--line);
         border-radius: 12px;
@@ -137,30 +138,24 @@
         justify-content: center;
         text-align: center;
         padding: 24px;
+        z-index: 20;
     }
     .overlay[hidden] { display: none; }
-    .overlay h1 {
-        margin: 0 0 8px;
-        font-size: 7.3cqw;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: #000000;
-    }
     .overlay h2 {
         margin: 0 0 8px;
-        font-size: 7.3cqw;
+        font-size: 22px;
         font-weight: 800;
         letter-spacing: -0.02em;
     }
     .overlay .rule {
         margin: 0 0 18px;
-        font-size: 5cqw;
+        font-size: 15px;
         line-height: 1.6;
         color: var(--muted);
-        max-width: 80%;
+        max-width: 240px;
     }
     .final-score {
-        font-size: 13.3cqw;
+        font-size: 40px;
         font-weight: 800;
         color: var(--accent);
         font-variant-numeric: tabular-nums;
@@ -171,12 +166,14 @@
         border: none;
         background: var(--accent);
         color: #ffffff;
-        font-size: 5.3cqw;
+        font-size: 16px;
         font-weight: 700;
         letter-spacing: -0.01em;
-        padding: 4cqw 10cqw;
+        padding: 12px 24px;
         border-radius: 8px;
         cursor: pointer;
+        width: 100%;
+        max-width: 220px;
     }
     .btn:hover { background: var(--accent-dark); }
     .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -201,6 +198,7 @@
     <div class="canvas-wrap">
         <div id="selectionSum"></div>
         <canvas id="canvas" width="300" height="400"></canvas>
+        
         <div class="overlay" id="startScreen">
             <h1>Rectten</h1>
             <p class="rule">사각형을 그려서 안에 있는 숫자의 합이 10이 되면 블록이 사라집니다.</p>
@@ -211,7 +209,8 @@
             <h2>게임 종료</h2>
             <p class="rule">최종 점수</p>
             <div class="final-score" id="finalScore">0</div>
-            <button class="btn" id="restartBtn">다시 시작</button>
+            
+            <button class="btn" id="restartBtn">처음부터 다시</button>
         </div>
     </div>
 </div>
@@ -219,9 +218,17 @@
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+
+const LOGICAL_WIDTH = 300;
+const LOGICAL_HEIGHT = 400;
+const DPR = Math.max(window.devicePixelRatio || 1, 1);
+canvas.width = LOGICAL_WIDTH * DPR;
+canvas.height = LOGICAL_HEIGHT * DPR;
+ctx.scale(DPR, DPR);
 const scoreEl = document.getElementById('score');
 const comboBadge = document.getElementById('comboBadge');
 const timerBar = document.getElementById('timerBar');
+const selectionSumEl = document.getElementById('selectionSum');
 const startScreen = document.getElementById('startScreen');
 const gameOverScreen = document.getElementById('gameOverScreen');
 const finalScoreEl = document.getElementById('finalScore');
@@ -231,24 +238,6 @@ const restartBtn = document.getElementById('restartBtn');
 const COLS = 6;
 const ROWS = 8;
 const BLOCK_SIZE = 50;
-const LOGICAL_WIDTH = COLS * BLOCK_SIZE;
-const LOGICAL_HEIGHT = ROWS * BLOCK_SIZE;
-let displayScale = 1;
-
-function resizeCanvas() {
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    const dpr = window.devicePixelRatio || 1;
-
-    displayScale = rect.width / LOGICAL_WIDTH;
-
-    canvas.width = Math.round(rect.width * dpr);
-    canvas.height = Math.round(rect.height * dpr);
-    ctx.setTransform(displayScale * dpr, 0, 0, displayScale * dpr, 0, 0);
-}
-
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('orientationchange', resizeCanvas);
 
 const BASE_TIME_LIMIT = 15;
 const MIN_TIME_LIMIT = 7;
@@ -274,6 +263,7 @@ const PALETTE = {
     bombBg: '#111111', bombText: '#ffffff',
     selectValid: '#16a34a', selectInvalid: '#3452eb'
 };
+
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 const audioBuffers = {};
@@ -286,8 +276,6 @@ const SOUND_FILES = {
     end: 'sounds/end.mp3',
     click: 'sounds/click.mp3'
 };
-
-const selectionSumEl = document.getElementById('selectionSum');
 
 function loadSounds() {
     if (!audioCtx) audioCtx = new AudioContext();
@@ -626,8 +614,10 @@ function updateTimer(dt) {
 function triggerGameOver() {
     gameRunning = false;
     isSelecting = false;
-    playSound('end');
+    selectionSumEl.style.display = 'none';
+    playSound('end'); 
     finalScoreEl.textContent = score;
+
     gameOverScreen.hidden = false;
 }
 
@@ -702,10 +692,12 @@ function draw() {
         ctx.lineWidth = 2.5;
         ctx.stroke();
 
+        // 위치에 관계없이 무조건 그린 사각형 상단 바로 위에 표시
         selectionSumEl.textContent = `${total}`;
         selectionSumEl.style.color = color;
-        selectionSumEl.style.left = `${(x + w / 2) * displayScale}px`;
-        selectionSumEl.style.top = `${(y + 2) * displayScale}px`;
+        selectionSumEl.style.left = `${x + w / 2}px`;
+        selectionSumEl.style.top = `${y - 4}px`;
+        selectionSumEl.style.transform = 'translate(-50%, -100%)';
         selectionSumEl.style.display = 'block';
     } else {
         selectionSumEl.style.display = 'none';
@@ -923,7 +915,7 @@ function startGame() {
     initGrid();
 
     tickTimer = 0;
-    playSound('click');
+    playSound('click'); 
     gameStarted = true;
     gameRunning = true;
     lastTime = performance.now();
@@ -932,7 +924,6 @@ function startGame() {
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
 
-resizeCanvas();
 initGrid();
 requestAnimationFrame(gameLoop);
 </script>
