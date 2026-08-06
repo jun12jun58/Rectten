@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Rectten</title>
@@ -14,7 +14,7 @@
         --accent-dark: #2a41bf;
         --danger: #e0483e;
         --success: #16a34a;
-        --bonus: #f5a623;
+        --bonus: #ff9e02;
         --tile-bg: #fafafa;
         --tile-border: #dcdce0;
         --neg-bg: #fdeceb;
@@ -25,62 +25,145 @@
     * { box-sizing: border-box; }
     body {
         margin: 0;
-        padding: 24px 16px;
+        padding: 0;
         background: var(--bg);
         color: var(--ink);
-        font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
-        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        height: 100vh;
+        height: 100dvh;
         overflow: hidden;
         touch-action: none;
+    }
+    .stage {
+        width: 100vw;
+        height: 100vh;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .phone-frame {
+        width: 320px;
+        height: 640px;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        position: relative;
+        transform-origin: center center;
     }
     .app {
-        width: 300px;
-        margin: 0 auto;
+        width: 250px;
+        height: 426px;
+        position: relative;
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .game-hud {
+        width: 100%;
+        height: 88px;
+        margin-bottom: 18px;
+        opacity: 0;
+        transform: translateY(-8px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+    }
+    .game-hud.visible {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
     }
     .topbar {
         display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        margin-bottom: 14px;
-    }
-    .topbar h1 {
-        margin: 0;
-        font-size: 21px;
-        font-weight: 800;
-        letter-spacing: -0.02em;
-        color: #000000;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 10px;
     }
     #score {
-        font-size: 20px;
-        font-weight: 800;
+        font-size: 28px;
+        font-weight: 750;
         color: #3452eb;
         font-variant-numeric: tabular-nums;
+        display: inline-block;
+    }
+    #score.low-time {
+        animation: scoreShake var(--shake-dur, 0.35s) ease-in-out infinite;
+    }
+    #score.time-critical {
+        color: #e0483e;
+    }
+    @keyframes scoreShake {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        20% { transform: translate(calc(var(--shake-amp, 1px) * -1), calc(var(--shake-amp, 1px) * 0.6)) rotate(calc(var(--shake-rot, 1deg) * -1)); }
+        40% { transform: translate(var(--shake-amp, 1px), calc(var(--shake-amp, 1px) * -0.6)) rotate(var(--shake-rot, 1deg)); }
+        60% { transform: translate(calc(var(--shake-amp, 1px) * -0.6), calc(var(--shake-amp, 1px) * -0.6)) rotate(calc(var(--shake-rot, 1deg) * -0.6)); }
+        80% { transform: translate(calc(var(--shake-amp, 1px) * 0.6), var(--shake-amp, 1px)) rotate(calc(var(--shake-rot, 1deg) * 0.6)); }
     }
     .hud {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
         align-items: center;
-        height: 24px; 
-        margin-bottom: 6px;
+        width: 100%;
+        height: 22px; 
+        margin-bottom: 8px;
+        position: relative;
     }
     #comboBadge {
         visibility: hidden;
         opacity: 0;
-        transition: opacity 0.15s ease-in-out;
-        background: var(--bonus);
-        color: #ffffff;
-        font-size: 12px;
-        font-weight: 800;
-        padding: 3px 10px;
-        border-radius: 20px;
+        font-size: 14px; 
+        font-weight: 750;
         letter-spacing: -0.01em;
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+        display: inline-block;
+        transform-origin: center center;
+        transition: opacity 0.4s ease-out, color 0.2s ease-out, scale 0.1s ease-out, visibility 0.1s ease-out;
     }
-    #comboBadge.show { 
+    #comboBadge.show {
         visibility: visible;
         opacity: 1;
+    }
+    #comboBadge.tier1 {
+        color: var(--bonus);
+        scale: 1.0;
+    }
+    #comboBadge.tier2 {
+        color: #ff7a1a;
+        scale: 1.1;
+    }
+    #comboBadge.tier3 {
+        color: #ff2d55;
+        scale: 1.2;
+        animation: comboMoving 0.8s ease-in-out infinite;
+    }
+    @keyframes comboMoving {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-2px); } 
+    }
+    #comboPunch {
+        display: inline-block;
+        transform-origin: center center;
+    }
+    #comboPunch.punch {
+        will-change: transform;
+        animation: comboPunchPop 0.4s ease-out;
+    }
+    @keyframes comboPunchPop {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
     }
     .timer-track {
         width: 100%;
@@ -88,7 +171,6 @@
         background: var(--line);
         border-radius: 4px;
         overflow: hidden;
-        margin-bottom: 22px;
     }
     #timerBar {
         width: 100%;
@@ -98,132 +180,249 @@
     }
     .canvas-wrap {
         position: relative;
-        width: 300px;
-        height: 400px;
-        margin-top: 0;
+        width: 240px;
+        height: 320px;
         overflow: visible;
+        flex-shrink: 0;
+    }
+    .canvas-wrap.board-enter {
+        animation: boardEnter 0.42s cubic-bezier(0.22, 0.8, 0.32, 1) both;
+    }
+    .canvas-wrap.home-hidden {
+        visibility: hidden;
+    }
+    @keyframes boardEnter {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
     }
     #selectionSum {
         position: absolute;
         transform: translate(-50%, -100%);
-        font-size: 14px;
-        font-weight: 800;
+        font-size: 12px;
+        font-weight: 750;
         pointer-events: none;
         display: none;
         z-index: 10;
         white-space: nowrap;
         line-height: 1;
     }
+    #screenFlash {
+        position: absolute;
+        inset: 0;
+        background: var(--bg);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 30;
+        border-radius: 10px;
+    }
+    #screenFlash.flash-anim {
+        animation: screenFlashAnim 0.3s ease-out;
+    }
+    @keyframes screenFlashAnim {
+        0% { opacity: 0.75; }
+        100% { opacity: 0; }
+    }
     canvas {
         display: block;
-        width: 300px;
-        height: 400px;
-        background: #ffffff;
+        width: 240px;
+        height: 320px;
+        background: var(--bg);
         border: 1px solid var(--line);
-        border-radius: 12px;
+        border-radius: 10px;
         touch-action: none;
     }
     .overlay {
         position: absolute;
         inset: 0;
-        background: #ffffff;
+        background: var(--bg);
         border: 1px solid var(--line);
-        border-radius: 12px;
+        border-radius: 10px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: 24px;
+        padding: 24px 18px;
         z-index: 20;
+        animation: overlayIn 0.35s ease;
     }
-    .overlay[hidden] { display: none; }
-    .overlay h2 {
-        margin: 0 0 8px;
-        font-size: 22px;
-        font-weight: 800;
+    @keyframes overlayIn {
+        from { opacity: 0; transform: translateY(-18px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .overlay.overlay-exit {
+        animation: overlayOut 0.28s ease forwards;
+    }
+    @keyframes overlayOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(18px); }
+    }
+    .overlay[hidden] { 
+        display: none; 
+    }
+    .overlay h1, .overlay h2 {
+        margin: 0 0 22px;
+        font-size: 25px;
+        font-weight: 750;
         letter-spacing: -0.02em;
     }
-    .overlay .rule {
-        margin: 0 0 18px;
+    .overlay .final-score-label {
+        margin: 0 0 6px;
         font-size: 15px;
-        line-height: 1.6;
+        font-weight: 500;
+        line-height: 1.4;
         color: var(--muted);
-        max-width: 240px;
     }
     .final-score {
-        font-size: 40px;
-        font-weight: 800;
+        font-size: 42px;
+        font-weight: 750;
         color: var(--accent);
         font-variant-numeric: tabular-nums;
         margin-bottom: 22px;
+    }
+    .stats-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        margin-bottom: 26px;
+    }
+    .stat-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        min-width: 74px;
+    }
+    .stat-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--muted);
+        letter-spacing: -0.01em;
+    }
+    .stat-value {
+        font-size: 25px;
+        font-weight: 750;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+    }
+    .stat-value.combo {
+        color: var(--bonus);
+    }
+    .stat-divider {
+        width: 1px;
+        height: 34px;
+        background: var(--line);
+    }
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
     }
     .btn {
         appearance: none;
         border: none;
         background: var(--accent);
         color: #ffffff;
-        font-size: 16px;
-        font-weight: 700;
+        font-size: 14.5px;
+        font-weight: 750;
         letter-spacing: -0.01em;
-        padding: 12px 24px;
-        border-radius: 8px;
+        padding: 13px 20px;
+        border-radius: 9px;
         cursor: pointer;
         width: 100%;
         max-width: 120px;
     }
-    .btn:hover { background: var(--accent-dark); }
-    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn.secondary {
+        background: var(--bg);
+        color: var(--accent);
+        border: 1.5px solid var(--accent);
+    }
 </style>
 </head>
 <body>
 
-<div class="app">
-    <div class="topbar">
-        <h1>Rectten</h1>
-        <div id="score">0</div>
+<div class="stage">
+<div class="phone-frame" id="phoneFrame">
+<div class="app" id="app">
+    <div class="game-hud" id="gameHud">
+        <div class="topbar">
+            <div id="score">0</div>
+        </div>
+
+        <div class="hud">
+            <span id="comboBadge"><span id="comboPunch"></span></span>
+        </div>
+
+        <div class="timer-track">
+            <div id="timerBar"></div>
+        </div>
     </div>
 
-    <div class="hud">
-        <span id="comboBadge">x2 Combo</span>
-    </div>
-
-    <div class="timer-track">
-        <div id="timerBar"></div>
-    </div>
-
-    <div class="canvas-wrap">
+    <div class="canvas-wrap" id="canvasWrap">
         <div id="selectionSum"></div>
-        <canvas id="canvas" width="300" height="400"></canvas>
-        
-        <div class="overlay" id="startScreen">
-            <h1>Rectten</h1>
-            <p class="rule">사각형을 그려서 안에 있는 숫자의 합이 10이 되면 블록이 사라집니다.</p>
-            <button class="btn" id="startBtn">시작</button>
+        <canvas id="canvas" width="240" height="320"></canvas>
+        <div id="screenFlash"></div>
+    </div>
+
+    <div class="overlay" id="startScreen">
+        <h1>Rectten</h1>
+        <div class="stats-row">
+            <div class="stat-box">
+                <span class="stat-label">Best Score</span>
+                <span class="stat-value" id="bestScoreText">0</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-box">
+                <span class="stat-label">Best Combo</span>
+                <span class="stat-value combo" id="bestComboText">0</span>
+            </div>
+        </div>
+        <button class="btn" id="startBtn">Play</button>
+    </div>
+
+    <div class="overlay" id="gameOverScreen" hidden>
+        <h2>Game Over</h2>
+        <p class="final-score-label">Score</p>
+        <div class="final-score" id="finalScore">0</div>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <span class="stat-label">Best Score</span>
+                <span class="stat-value" id="bestScoreText2">0</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-box">
+                <span class="stat-label">Best Combo</span>
+                <span class="stat-value combo" id="bestComboText2">0</span>
+            </div>
         </div>
 
-        <div class="overlay" id="gameOverScreen" hidden>
-            <h2>게임 종료</h2>
-            <p class="rule">최종 점수</p>
-            <div class="final-score" id="finalScore">0</div>
-            
-            <button class="btn" id="restartBtn">다시 시작</button>
+        <div class="btn-group">
+            <button class="btn" id="restartBtn">Play Again</button>
+            <button class="btn secondary" id="homeBtn">Home</button>
         </div>
     </div>
+</div>
+</div>
 </div>
 
 <script>
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-const LOGICAL_WIDTH = 300;
-const LOGICAL_HEIGHT = 400;
+const LOGICAL_WIDTH = 240;
+const LOGICAL_HEIGHT = 320;
 const DPR = Math.max(window.devicePixelRatio || 1, 1);
 canvas.width = LOGICAL_WIDTH * DPR;
 canvas.height = LOGICAL_HEIGHT * DPR;
 ctx.scale(DPR, DPR);
+
 const scoreEl = document.getElementById('score');
 const comboBadge = document.getElementById('comboBadge');
+const comboPunch = document.getElementById('comboPunch');
 const timerBar = document.getElementById('timerBar');
 const selectionSumEl = document.getElementById('selectionSum');
 const startScreen = document.getElementById('startScreen');
@@ -231,21 +430,31 @@ const gameOverScreen = document.getElementById('gameOverScreen');
 const finalScoreEl = document.getElementById('finalScore');
 const startBtn = document.getElementById('startBtn');
 const restartBtn = document.getElementById('restartBtn');
+const homeBtn = document.getElementById('homeBtn');
+const bestScoreText = document.getElementById('bestScoreText');
+const bestComboText = document.getElementById('bestComboText');
+const bestScoreText2 = document.getElementById('bestScoreText2');
+const bestComboText2 = document.getElementById('bestComboText2');
+const screenFlash = document.getElementById('screenFlash');
+const gameHud = document.getElementById('gameHud');
+const canvasWrap = document.getElementById('canvasWrap');
 
 const COLS = 6;
 const ROWS = 8;
-const BLOCK_SIZE = 50;
+const BLOCK_SIZE = 40;
 
-const BASE_TIME_LIMIT = 15;
-const MIN_TIME_LIMIT = 7;
-const TIME_DECAY_PER_SCORE = 0.0008;
-const COMBO_WINDOW = 3.0;
-
-const NEGATIVE_RATE = 0.10;
-const COMBO_ASSIST_RATE = 0.35;
 const GROUP_SIZES = [3, 4];
 const BOMB_SPAWN_RATE = 0.15;
-const GRAVITY = 1200;
+const COMBO_ASSIST_RATE = 0.35;
+const FALL_SPEED_PER_ROW = 250;
+const FALL_SPEED_SLOWDOWN = 50;
+
+const COMBO_WINDOW_MAX = 13.2;
+const COMBO_WINDOW_MIN = 1.6;
+const COMBO_PITCH = { 1: 1.0, 2: 1.05, 3: 1.25 };
+
+const RANDOM_PARAMS = { negRate: 0.10, lowP: 0.50, midP: 0.25 };
+const TIME_LIMIT = { base: 15, min: 7, decay: 0.0008 };
 
 const POS_PALETTE = [
     { bg: '#dbeafe', border: '#60a5fa', text: '#1d4ed8' },
@@ -261,7 +470,6 @@ const PALETTE = {
     selectValid: '#16a34a', selectInvalid: '#3452eb'
 };
 
-const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 const audioBuffers = {};
 
@@ -275,51 +483,40 @@ const SOUND_FILES = {
 };
 
 function loadSounds() {
-    if (!audioCtx) audioCtx = new AudioContext();
-
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     Object.entries(SOUND_FILES).forEach(([key, url]) => {
-        fetch(url)
-            .then(res => res.arrayBuffer())
+        fetch(url).then(res => res.arrayBuffer())
             .then(buffer => audioCtx.decodeAudioData(buffer))
-            .then(decoded => {
-                audioBuffers[key] = decoded;
-            })
-            .catch(e => {});
+            .then(decoded => audioBuffers[key] = decoded)
+            .catch(() => {});
     });
 }
 
-function playSound(name, volume = 1.0) {
+function playSound(name, volume = 1.0, rate = 1.0) {
     if (!audioCtx || !audioBuffers[name]) return;
-
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-    }
-
+    if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
     try {
         const source = audioCtx.createBufferSource();
-        const gainNode = audioCtx.createGain();
-
+        const gain = audioCtx.createGain();
         source.buffer = audioBuffers[name];
-        gainNode.gain.value = volume;
-
-        source.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
+        source.playbackRate.value = rate;
+        gain.gain.value = volume;
+        source.connect(gain).connect(audioCtx.destination);
         source.start(0);
     } catch (e) {}
 }
 
 function getCurrentTimeLimit() {
-    return Math.max(MIN_TIME_LIMIT, BASE_TIME_LIMIT - score * TIME_DECAY_PER_SCORE);
+    return Math.max(TIME_LIMIT.min, TIME_LIMIT.base - score * TIME_LIMIT.decay);
 }
 
-let currentTimeLimit = BASE_TIME_LIMIT;
-let remainingTime = BASE_TIME_LIMIT;
+const TARGET_SUM = 10;
+let currentTimeLimit = TIME_LIMIT.base;
+let remainingTime = TIME_LIMIT.base;
 let lastTime = performance.now();
-
 let comboTimer = 0;
 let isCombo = false;
-
+let comboCount = 0;
 let grid = [];
 let particles = [];
 let shockwaves = [];
@@ -327,11 +524,9 @@ let floatingTexts = [];
 let score = 0;
 let gameStarted = false;
 let gameRunning = false;
-
 let isSelecting = false;
 let startCol = -1, startRow = -1;
 let currentCol = -1, currentRow = -1;
-
 let columnWindow = Array.from({ length: COLS }, () => []);
 let tickTimer = 0;
 
@@ -357,6 +552,7 @@ function countBombs() {
 
 function getRandomNum(col) {
     const colWindow = columnWindow[col];
+    const params = RANDOM_PARAMS;
 
     if (colWindow.length >= 2 && Math.random() < COMBO_ASSIST_RATE) {
         const groupSize = GROUP_SIZES[Math.floor(Math.random() * GROUP_SIZES.length)];
@@ -364,10 +560,11 @@ function getRandomNum(col) {
         if (colWindow.length >= need) {
             const recent = colWindow.slice(-need);
             const partialSum = recent.reduce((a, b) => a + b, 0);
-            const complement = 10 - partialSum;
+            const complement = TARGET_SUM - partialSum;
             const lastOne = recent[recent.length - 1];
             const lastTwo = recent.length >= 2 ? recent[recent.length - 1] + recent[recent.length - 2] : null;
-            if (lastOne !== 10 && lastTwo !== 10 && complement >= 1 && complement <= 9) {
+            const valid = complement !== 0 && ((complement >= 1 && complement <= 9) || (complement >= -3 && complement <= -1));
+            if (lastOne !== TARGET_SUM && lastTwo !== TARGET_SUM && valid) {
                 pushToWindow(col, complement);
                 return complement;
             }
@@ -376,60 +573,71 @@ function getRandomNum(col) {
 
     const r = Math.random();
     let value;
-    if (r < NEGATIVE_RATE) {
+    if (r < params.negRate) {
         value = Math.floor(Math.random() * 3) - 3;
         columnWindow[col] = [];
         return value;
     }
-    if (r < NEGATIVE_RATE + 0.50) {
-        value = Math.floor(Math.random() * 3) + 1;
-    } else if (r < NEGATIVE_RATE + 0.75) {
-        value = Math.floor(Math.random() * 3) + 4;
-    } else {
-        value = Math.floor(Math.random() * 3) + 7;
-    }
+    if (r < params.negRate + params.lowP) value = Math.floor(Math.random() * 3) + 1;
+    else if (r < params.negRate + params.lowP + params.midP) value = Math.floor(Math.random() * 3) + 4;
+    else value = Math.floor(Math.random() * 3) + 7;
     pushToWindow(col, value);
     return value;
 }
 
 function createBlock(targetR, c, startR) {
     const num = getRandomNum(c);
-    const block = {
-        num,
-        isBomb: false,
-        y: startR * BLOCK_SIZE,
-        targetY: targetR * BLOCK_SIZE,
-        vy: 0,
-        settled: startR === targetR
-    };
+    const dist = Math.max(1, targetR - startR);
+    const speedPerRow = Math.max(180, FALL_SPEED_PER_ROW - (dist - 1) * FALL_SPEED_SLOWDOWN);
+    const block = { num, isBomb: false, y: startR * BLOCK_SIZE, fallSpeed: dist * speedPerRow, targetY: targetR * BLOCK_SIZE, settled: startR === targetR };
     if (num > 0) block.palette = Math.floor(Math.random() * POS_PALETTE.length);
     return block;
 }
 
 function tryTransformRandomBlockToBomb() {
     if (countBombs() >= 1 || Math.random() >= BOMB_SPAWN_RATE) return;
-
     const candidates = grid.flat().filter(block => block && !block.isBomb);
-    if (candidates.length === 0) return;
+    if (!candidates.length) return;
     const block = candidates[Math.floor(Math.random() * candidates.length)];
     block.isBomb = true;
-    block.num = '💣';
+    block.num = 0;
+}
+
+
+function isTargetReachable() {
+    const prefix = Array.from({ length: ROWS + 1 }, () => Array(COLS + 1).fill(0));
+    for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+            const val = (grid[r][c] && !grid[r][c].isBomb) ? grid[r][c].num : 0;
+            prefix[r + 1][c + 1] = val + prefix[r][c + 1] + prefix[r + 1][c] - prefix[r][c];
+        }
+    }
+    for (let r1 = 0; r1 < ROWS; r1++) for (let r2 = r1; r2 < ROWS; r2++) {
+        for (let c1 = 0; c1 < COLS; c1++) for (let c2 = c1; c2 < COLS; c2++) {
+            const area = (r2 - r1 + 1) * (c2 - c1 + 1);
+            if (area < 2) continue;
+            const sum = prefix[r2 + 1][c2 + 1] - prefix[r1][c2 + 1] - prefix[r2 + 1][c1] + prefix[r1][c1];
+            if (sum === TARGET_SUM) return true;
+        }
+    }
+    return false;
+}
+
+function ensureSolvable() {
+    if (countBombs() > 0 || isTargetReachable()) return;
+    const candidates = grid.flat().filter(block => block && !block.isBomb);
+    if (!candidates.length) return;
+    const block = candidates[Math.floor(Math.random() * candidates.length)];
+    block.isBomb = true;
+    block.num = 0;
 }
 
 function createExplosionEffect(x, y) {
-    const particleColors = ['#1f1f1f', '#3452eb', '#8a8a93', '#c9c9cf'];
+    const colors = ['#1f1f1f', '#3452eb', '#8a8a93', '#c9c9cf'];
     for (let i = 0; i < 18; i++) {
         const angle = Math.random() * Math.PI * 2;
         const speed = Math.random() * 5 + 2;
-        particles.push({
-            x, y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            radius: Math.random() * 3 + 2,
-            color: particleColors[Math.floor(Math.random() * particleColors.length)],
-            alpha: 1,
-            life: Math.random() * 0.25 + 0.25
-        });
+        particles.push({ x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, radius: Math.random()*3+2, color: colors[Math.floor(Math.random()*colors.length)], alpha: 1, life: Math.random()*0.25+0.25 });
     }
 }
 
@@ -437,16 +645,12 @@ function popBlockEffect(block, x, y) {
     const color = block.num < 0 ? PALETTE.negText : POS_PALETTE[block.palette].text;
     for (let i = 0; i < 7; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 3 + 1.5;
-        particles.push({
-            x, y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            radius: Math.random() * 2.5 + 1.5,
-            color,
-            alpha: 1,
-            life: Math.random() * 0.25 + 0.25
-        });
+        const speed = Math.random() * 2.2 + 1.2;
+        particles.push({ x, y, vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed, radius: Math.random()*1.6+0.8, color, alpha: 1, life: Math.random()*0.3+0.22 });
+    }
+    const confetti = ['#3452eb', '#f5a623', '#16a34a'];
+    for (let i = 0; i < 3; i++) {
+        particles.push({ x, y, vx: (Math.random()-0.5)*3.2, vy: Math.random()*-2.2-1, radius: Math.random()*1+0.6, color: confetti[Math.floor(Math.random()*3)], alpha: 1, life: Math.random()*0.35+0.25 });
     }
 }
 
@@ -455,15 +659,13 @@ function createShockwave(x, y) {
 }
 
 function spawnFloatingText(x, y, text, color) {
-    floatingTexts.push({ x, y, text, color, alpha: 1, vy: -42 });
+    floatingTexts.push({ x, y, text, color, alpha: 1, vy: -35 });
 }
 
 function updateParticles(dt) {
     for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= dt / p.life;
+        p.x += p.vx; p.y += p.vy; p.alpha -= dt / p.life;
         if (p.alpha <= 0) particles.splice(i, 1);
     }
 }
@@ -471,8 +673,7 @@ function updateParticles(dt) {
 function updateShockwaves(dt) {
     for (let i = shockwaves.length - 1; i >= 0; i--) {
         const s = shockwaves[i];
-        s.radius += 150 * dt;
-        s.alpha -= dt * 1.6;
+        s.radius += 150 * dt; s.alpha -= dt * 1.6;
         if (s.alpha <= 0) shockwaves.splice(i, 1);
     }
 }
@@ -480,317 +681,268 @@ function updateShockwaves(dt) {
 function updateFloatingTexts(dt) {
     for (let i = floatingTexts.length - 1; i >= 0; i--) {
         const t = floatingTexts[i];
-        t.y += t.vy * dt;
-        t.alpha -= dt * 0.9;
+        t.y += t.vy * dt; t.alpha -= dt * 0.9;
         if (t.alpha <= 0) floatingTexts.splice(i, 1);
     }
 }
 
 function drawParticles() {
     particles.forEach(p => {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, p.alpha);
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+        ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2); ctx.fill(); ctx.restore();
     });
 }
 
 function drawShockwaves() {
     shockwaves.forEach(s => {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, s.alpha);
-        ctx.strokeStyle = PALETTE.bombBg;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
+        ctx.save(); ctx.globalAlpha = Math.max(0, s.alpha);
+        ctx.strokeStyle = PALETTE.bombBg; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.radius, 0, Math.PI*2); ctx.stroke(); ctx.restore();
     });
 }
 
 function drawFloatingTexts() {
     floatingTexts.forEach(t => {
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, t.alpha);
-        ctx.fillStyle = t.color;
-        ctx.font = 'bold 16px -apple-system, "Malgun Gothic", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(t.text, t.x, t.y);
-        ctx.restore();
+        ctx.save(); ctx.globalAlpha = Math.max(0, t.alpha);
+        ctx.fillStyle = t.color; ctx.font = 'bold 13px -apple-system, "Malgun Gothic", sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t.text, t.x, t.y); ctx.restore();
     });
 }
 
 function initGrid() {
     grid = Array.from({ length: ROWS }, () => Array(COLS).fill(null));
-    particles = [];
-    shockwaves = [];
-    floatingTexts = [];
+    particles = []; shockwaves = []; floatingTexts = [];
     columnWindow = Array.from({ length: COLS }, () => []);
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            grid[r][c] = createBlock(r, c, r);
-        }
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        grid[r][c] = createBlock(r, c, r);
     }
+    ensureSolvable();
     currentTimeLimit = getCurrentTimeLimit();
     remainingTime = currentTimeLimit;
-    isCombo = false;
-    comboBadge.classList.remove('show');
+    isCombo = false; comboCount = 0;
+    comboBadge.classList.remove('show', 'tier1', 'tier2', 'tier3');
     timerBar.style.background = 'var(--accent)';
+    scoreEl.classList.remove('low-time', 'time-critical');
 }
 
 function updatePhysics(dt) {
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            const block = grid[r][c];
-            if (!block || block.settled) continue;
-
-            block.vy += GRAVITY * dt;
-            block.y += block.vy * dt;
-
-            if (block.y >= block.targetY) {
-                block.y = block.targetY;
-                block.vy = 0;
-                block.settled = true;
-            }
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const block = grid[r][c];
+        if (!block || block.settled) continue;
+        block.y += block.fallSpeed * dt;
+        if (block.y >= block.targetY) {
+            block.y = block.targetY; block.settled = true;
         }
     }
 }
 
 function updateTimer(dt) {
     remainingTime -= dt;
-
     if (comboTimer > 0) {
         comboTimer -= dt;
         if (comboTimer <= 0) {
-            isCombo = false;
-            comboBadge.classList.remove('show');
+            isCombo = false; comboCount = 0;
+            comboBadge.classList.remove('show', 'tier1', 'tier2', 'tier3');
         }
     }
+    if (remainingTime <= 0) { remainingTime = 0; triggerGameOver(); return; }
 
-    if (remainingTime <= 0) {
-        remainingTime = 0;
-        triggerGameOver();
-        return;
-    }
-
-    const percentage = Math.max(0, (remainingTime / currentTimeLimit) * 100);
-    timerBar.style.width = percentage + '%';
+    const perc = Math.max(0, (remainingTime / currentTimeLimit) * 100);
+    timerBar.style.width = perc + '%';
 
     if (gameRunning) {
         tickTimer += dt;
-        let currentInterval;
-
-        if (percentage >= 75) {
-            currentInterval = 0.7;
-        } else if (percentage >= 8) {
-            const progress = (70 - percentage) / 62;
-            currentInterval = 0.7 - progress * 0.6;
-        } else {
-            currentInterval = 0.1;
-        }
-
-        if (tickTimer >= currentInterval) {
-            playSound('clock', 0.5);
-            tickTimer %= currentInterval;
-        }
+        let interval = perc >= 75 ? 0.7 : (perc >= 8 ? 0.7 - (70 - perc) / 62 * 0.6 : 0.1);
+        if (tickTimer >= interval) { playSound('clock', 0.5); tickTimer %= interval; }
     }
 
-    if (isCombo) {
-        timerBar.style.background = '#f5a623';
-    } else if (percentage < 30) {
-        timerBar.style.background = '#e0483e';
+    if (perc < 30) {
+        scoreEl.classList.add('time-critical');
     } else {
-        timerBar.style.background = '#3452eb';
+        scoreEl.classList.remove('time-critical');
     }
+
+    if (perc < 50) {
+        scoreEl.classList.add('low-time');
+        const t = ((50 - perc) / 50) ** 2;
+        const amp = 0.2 + t * 2.0;
+        const rot = t * 4.0;
+        const dur = 1.0 - t * 0.9;
+        scoreEl.style.setProperty('--shake-amp', amp.toFixed(2) + 'px');
+        scoreEl.style.setProperty('--shake-rot', rot.toFixed(2) + 'deg');
+        scoreEl.style.setProperty('--shake-dur', dur.toFixed(2) + 's');
+    } else {
+        scoreEl.classList.remove('low-time');
+    }
+
+    timerBar.style.background = isCombo ? '#f5a623' : (perc < 30 ? '#e0483e' : '#3452eb');
+}
+
+function updateBestDisplay() {
+    const bestScore = localStorage.getItem('rectten_best_score') || 0;
+    const bestCombo = localStorage.getItem('rectten_best_combo') || 0;
+    if (bestScoreText) bestScoreText.textContent = bestScore;
+    if (bestComboText) bestComboText.textContent = bestCombo;
+    if (bestScoreText2) bestScoreText2.textContent = bestScore;
+    if (bestComboText2) bestComboText2.textContent = bestCombo;
 }
 
 function triggerGameOver() {
-    gameRunning = false;
-    isSelecting = false;
+    gameRunning = false; isSelecting = false;
     selectionSumEl.style.display = 'none';
-    playSound('end'); 
+    comboBadge.classList.remove('show','tier1','tier2','tier3');
+    gameHud.classList.remove('visible');
+    playSound('end');
     finalScoreEl.textContent = score;
-
     gameOverScreen.hidden = false;
+    
+    updateBestDisplay();
 }
 
 function draw() {
     ctx.clearRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
-    for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-            const block = grid[r][c];
-            if (!block) continue;
-            const x = c * BLOCK_SIZE;
-            const y = block.y;
+    if (!gameStarted) return;
 
-            if (block.isBomb) {
-                ctx.save();
-                ctx.font = `${BLOCK_SIZE * 0.6}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('💣', x + BLOCK_SIZE / 2, y + BLOCK_SIZE / 2);
-                ctx.restore();
-            } else {
-                const neg = block.num < 0;
-                const style = neg ? null : POS_PALETTE[block.palette];
-                const drawW = BLOCK_SIZE - 4;
-                const drawH = BLOCK_SIZE - 4;
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+        const block = grid[r][c];
+        if (!block) continue;
+        const x = c * BLOCK_SIZE, y = block.y;
 
-                ctx.save();
-                ctx.translate(x + BLOCK_SIZE / 2, y + BLOCK_SIZE / 2);
-
-                ctx.fillStyle = neg ? PALETTE.negBg : style.bg;
-                ctx.strokeStyle = neg ? PALETTE.negBorder : style.border;
-                ctx.lineWidth = 1;
-                roundRect(-drawW / 2, -drawH / 2, drawW, drawH, 6);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.fillStyle = neg ? PALETTE.negText : style.text;
-                ctx.font = '500 20px -apple-system, "Malgun Gothic", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(block.num, 0, 0);
-
-                ctx.restore();
-            }
+        if (block.isBomb) {
+            ctx.save();
+            ctx.font = `${BLOCK_SIZE*0.6}px sans-serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('💣', x + BLOCK_SIZE/2, y + BLOCK_SIZE/2);
+            ctx.restore();
+        } else {
+            const neg = block.num < 0;
+            const style = neg ? null : POS_PALETTE[block.palette];
+            const dw = BLOCK_SIZE - 4, dh = BLOCK_SIZE - 4;
+            ctx.save();
+            ctx.translate(x + BLOCK_SIZE/2, y + BLOCK_SIZE/2);
+            ctx.fillStyle = neg ? PALETTE.negBg : style.bg;
+            ctx.strokeStyle = neg ? PALETTE.negBorder : style.border;
+            ctx.lineWidth = 1;
+            roundRect(-dw/2, -dh/2, dw, dh, 5);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = neg ? PALETTE.negText : style.text;
+            ctx.font = '500 16px -apple-system, "Malgun Gothic", sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText(block.num, 0, 0);
+            ctx.restore();
         }
     }
 
     if (isSelecting && startCol >= 0 && currentCol >= 0) {
-        const minC = Math.min(startCol, currentCol);
-        const maxC = Math.max(startCol, currentCol);
-        const minR = Math.min(startRow, currentRow);
-        const maxR = Math.max(startRow, currentRow);
-
+        const minC = Math.min(startCol, currentCol), maxC = Math.max(startCol, currentCol);
+        const minR = Math.min(startRow, currentRow), maxR = Math.max(startRow, currentRow);
         const { total } = getSumInRect(startCol, startRow, currentCol, currentRow);
-        const valid = total === 10;
-
-        const padding = 2;
-        const x = minC * BLOCK_SIZE + padding;
-        const y = minR * BLOCK_SIZE + padding;
-        const w = (maxC - minC + 1) * BLOCK_SIZE - padding * 2;
-        const h = (maxR - minR + 1) * BLOCK_SIZE - padding * 2;
+        const valid = total === TARGET_SUM;
+        const pad = 2;
+        const x = minC * BLOCK_SIZE + pad, y = minR * BLOCK_SIZE + pad;
+        const w = (maxC - minC + 1) * BLOCK_SIZE - pad*2;
+        const h = (maxR - minR + 1) * BLOCK_SIZE - pad*2;
         const color = valid ? PALETTE.selectValid : PALETTE.selectInvalid;
 
-        roundRect(x, y, w, h, 8);
+        roundRect(x, y, w, h, 6);
+        ctx.globalAlpha = 0.12; ctx.fillStyle = color; ctx.fill(); ctx.globalAlpha = 1;
+        ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
 
-        ctx.globalAlpha = 0.12;
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.globalAlpha = 1;
-
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-        
         selectionSumEl.textContent = `${total}`;
         selectionSumEl.style.color = color;
-        selectionSumEl.style.left = `${x + w / 2}px`;
+        selectionSumEl.style.left = `${x + w/2}px`;
         selectionSumEl.style.top = `${y - 4}px`;
-        selectionSumEl.style.transform = 'translate(-50%, -100%)';
         selectionSumEl.style.display = 'block';
     } else {
         selectionSumEl.style.display = 'none';
     }
 
-    drawShockwaves();
-    drawParticles();
-    drawFloatingTexts();
+    drawShockwaves(); drawParticles(); drawFloatingTexts();
 }
 
 function gameLoop(now) {
     const dt = Math.min((now - lastTime) / 1000, 0.05);
     lastTime = now;
-
     updatePhysics(dt);
     updateParticles(dt);
     updateShockwaves(dt);
     updateFloatingTexts(dt);
     if (gameStarted && gameRunning) updateTimer(dt);
     draw();
-
     requestAnimationFrame(gameLoop);
 }
 
 function getSumInRect(c1, r1, c2, r2) {
-    let total = 0;
-    const cells = [];
-    const bombCells = [];
+    let total = 0, cells = [], bombCells = [];
     const minC = Math.min(c1, c2), maxC = Math.max(c1, c2);
     const minR = Math.min(r1, r2), maxR = Math.max(r1, r2);
-
-    for (let r = minR; r <= maxR; r++) {
-        for (let c = minC; c <= maxC; c++) {
-            const block = grid[r]?.[c];
-            if (block) {
-                if (block.isBomb) bombCells.push([r, c]);
-                else total += block.num;
-                cells.push([r, c]);
-            }
+    for (let r = minR; r <= maxR; r++) for (let c = minC; c <= maxC; c++) {
+        const block = grid[r]?.[c];
+        if (block) {
+            if (block.isBomb) bombCells.push([r,c]);
+            else total += block.num;
+            cells.push([r,c]);
         }
     }
-    return { total, cells, bombCells };
+    return {total, cells, bombCells};
 }
 
 function processExplosionAndGravity(selectedCells, bombCells) {
-    const cellsToDestroySet = new Set(selectedCells.map(JSON.stringify));
+    const destroySet = new Set(selectedCells.map(JSON.stringify));
+    if (bombCells.length) playSound('bomb');
+    else if (isCombo) playSound('combo', 1.0, COMBO_PITCH[getComboTier(comboCount + 1)]);
+    else playSound('pop');
 
-    if (bombCells.length > 0) {
-        playSound('bomb');
-    } else if (isCombo) {
-        playSound('combo');
-    } else {
-        playSound('pop');
-    }
-
-    bombCells.forEach(([bR, bC]) => {
-        const x = bC * BLOCK_SIZE + BLOCK_SIZE / 2;
-        const y = bR * BLOCK_SIZE + BLOCK_SIZE / 2;
-        createExplosionEffect(x, y);
-        createShockwave(x, y);
-        for (let r = bR - 1; r <= bR + 1; r++) {
-            for (let c = bC - 1; c <= bC + 1; c++) {
-                if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r]?.[c]) {
-                    cellsToDestroySet.add(JSON.stringify([r, c]));
-                }
-            }
+    bombCells.forEach(([br, bc]) => {
+        const x = bc * BLOCK_SIZE + BLOCK_SIZE / 2, y = br * BLOCK_SIZE + BLOCK_SIZE / 2;
+        createExplosionEffect(x,y); createShockwave(x,y);
+        for (let r = br - 1; r <= br + 1; r++) for (let c = bc - 1; c <= bc + 1; c++) {
+            if (r >= 0 && r < ROWS && c >= 0 && c < COLS && grid[r]?.[c]) destroySet.add(JSON.stringify([r, c]));
         }
     });
 
-    const finalCellsToDestroy = Array.from(cellsToDestroySet, JSON.parse);
-    finalCellsToDestroy.forEach(([r, c]) => {
+    const toDestroy = Array.from(destroySet, JSON.parse);
+    toDestroy.forEach(([r, c]) => {
         const block = grid[r]?.[c];
         if (block) {
-            if (!block.isBomb) {
-                popBlockEffect(block, c * BLOCK_SIZE + BLOCK_SIZE / 2, block.y + BLOCK_SIZE / 2);
-            }
+            if (!block.isBomb) popBlockEffect(block, c * BLOCK_SIZE + BLOCK_SIZE / 2, block.y + BLOCK_SIZE / 2);
             grid[r][c] = null;
         }
     });
 
     for (let c = 0; c < COLS; c++) {
-        let emptyRow = ROWS - 1;
+        let empty = ROWS - 1;
+        let highestY = ROWS * BLOCK_SIZE;
+        let hasFallingBlock = false;
+
         for (let r = ROWS - 1; r >= 0; r--) {
-            if (grid[r][c] !== null) {
-                if (r !== emptyRow) {
-                    grid[emptyRow][c] = grid[r][c];
-                    grid[emptyRow][c].targetY = emptyRow * BLOCK_SIZE;
-                    grid[emptyRow][c].settled = false;
-                    grid[r][c] = null;
+            if (grid[r][c]) {
+                const block = grid[r][c];
+                block.targetY = empty * BLOCK_SIZE;
+
+                if (r !== empty || !block.settled) {
+                    const distInRows = Math.max(1, (block.targetY - block.y) / BLOCK_SIZE);
+                    const speedPerRow = Math.max(180, FALL_SPEED_PER_ROW - (distInRows - 1) * FALL_SPEED_SLOWDOWN);
+                    block.fallSpeed = distInRows * speedPerRow;
+                    block.settled = false;
                 }
-                emptyRow--;
+
+                grid[empty][c] = block;
+                if (r !== empty) grid[r][c] = null;
+                
+                if (!block.settled && block.y < highestY) {
+                    highestY = block.y;
+                    hasFallingBlock = true;
+                }
+
+                empty--;
             }
         }
 
         const seed = [];
         for (let k = 1; k <= 3; k++) {
-            const rr = emptyRow + k;
+            const rr = empty + k;
             const b = rr < ROWS ? grid[rr]?.[c] : null;
             if (b && !b.isBomb) {
                 seed.unshift(b.num);
@@ -800,64 +952,125 @@ function processExplosionAndGravity(selectedCells, bombCells) {
         }
         columnWindow[c] = seed;
 
-        let spawnOffset = 1;
-        for (let r = emptyRow; r >= 0; r--) {
-            grid[r][c] = createBlock(r, c, -spawnOffset);
-            spawnOffset++;
+        for (let r = empty; r >= 0; r--) {
+            const newBlock = createBlock(r, c, 0);
+
+            let spawnY;
+            if (hasFallingBlock) {
+                const offset = (empty - r + 1) * BLOCK_SIZE;
+                spawnY = highestY - offset;
+            } else {
+                const offset = (empty - r + 1) * BLOCK_SIZE;
+                spawnY = -offset;
+            }
+
+            newBlock.y = spawnY;
+            newBlock.targetY = r * BLOCK_SIZE;
+
+            const distInRows = Math.max(1, (newBlock.targetY - newBlock.y) / BLOCK_SIZE);
+            const speedPerRow = Math.max(180, FALL_SPEED_PER_ROW - (distInRows - 1) * FALL_SPEED_SLOWDOWN);
+
+            newBlock.fallSpeed = distInRows * speedPerRow;
+            newBlock.settled = false;
+
+            grid[r][c] = newBlock;
         }
     }
 
     tryTransformRandomBlockToBomb();
-    return finalCellsToDestroy.length;
+    ensureSolvable();
+    return toDestroy.length;
+}
+
+function getComboWindow(count) {
+    return Math.max(COMBO_WINDOW_MIN, Math.min(COMBO_WINDOW_MAX, COMBO_WINDOW_MAX - (count - 1) * 0.05));
+}
+
+function getComboTier(count) { return count === 0 ? 0 : (count <= 3 ? 1 : (count <= 5 ? 2 : 3)); }
+function getComboMultiplier(count) {
+    const t = getComboTier(count);
+    return t === 0 ? 1 : (t === 1 ? 1.5 : (t === 2 ? 2 : 3));
+}
+
+function triggerComboFeedback(tier) {
+    if (navigator.vibrate) {
+        if (tier === 1) navigator.vibrate(15);
+        else if (tier === 2) navigator.vibrate([20, 30, 20]);
+        else navigator.vibrate([30, 40, 30, 40, 30]);
+    }
+    if (tier === 3) {
+        screenFlash.classList.remove('flash-anim');
+        void screenFlash.offsetWidth;
+        screenFlash.classList.add('flash-anim');
+    }
+}
+
+function updateComboUI() {
+    const tier = getComboTier(comboCount);
+    comboPunch.textContent = `Combo ${comboCount}`;
+    comboBadge.classList.remove('tier1', 'tier2', 'tier3');
+    comboBadge.classList.add(`tier${tier}`, 'show');
+    comboPunch.classList.remove('punch');
+    void comboPunch.offsetWidth;
+    comboPunch.classList.add('punch');
+    triggerComboFeedback(tier);
+}
+
+function getComboTierColor(tier) {
+    return tier === 0 ? '#cccccc' : (tier === 1 ? '#ff9e02' : (tier === 2 ? '#ff7a1a' : '#ff2d55'));
 }
 
 function triggerBonusState() {
+    comboCount++;
+
+    let bestCombo = Number(localStorage.getItem('rectten_best_combo')) || 0;
+    if (comboCount > bestCombo) {
+        localStorage.setItem('rectten_best_combo', comboCount);
+    }
+
     isCombo = true;
-    comboTimer = COMBO_WINDOW;
-    comboBadge.classList.add('show');
+    comboTimer = getComboWindow(comboCount);
+    updateComboUI();
     currentTimeLimit = getCurrentTimeLimit();
     remainingTime = currentTimeLimit;
 }
 
 function applyScore(destroyedCount) {
-    const multiplier = isCombo ? 2 : 1;
-    const points = destroyedCount * 20 * multiplier;
+    const multiplier = getComboMultiplier(comboCount);
+    const points = Math.round(destroyedCount * 10 * multiplier);
     score += points;
     scoreEl.textContent = score;
+
+    let bestScore = Number(localStorage.getItem('rectten_best_score')) || 0;
+    if (score > bestScore) {
+        localStorage.setItem('rectten_best_score', score);
+    }
+    
     return points;
 }
 
 function getGridPos(e) {
     const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-    const scaleX = LOGICAL_WIDTH / rect.width;
-    const scaleY = LOGICAL_HEIGHT / rect.height;
-
-    const c = Math.max(0, Math.min(COLS - 1, Math.floor(((clientX - rect.left) * scaleX) / BLOCK_SIZE)));
-    const r = Math.max(0, Math.min(ROWS - 1, Math.floor(((clientY - rect.top) * scaleY) / BLOCK_SIZE)));
-    return { c, r };
+    const cx = e.touches ? e.touches[0].clientX : e.clientX;
+    const cy = e.touches ? e.touches[0].clientY : e.clientY;
+    const sx = LOGICAL_WIDTH / rect.width;
+    const sy = LOGICAL_HEIGHT / rect.height;
+    const c = Math.max(0, Math.min(COLS - 1, Math.floor((cx - rect.left) * sx / BLOCK_SIZE)));
+    const r = Math.max(0, Math.min(ROWS - 1, Math.floor((cy - rect.top) * sy / BLOCK_SIZE)));
+    return {c, r};
 }
 
 function handleStart(e) {
     if (!gameStarted || !gameRunning) return;
     const pos = getGridPos(e);
-
     if (grid[pos.r]?.[pos.c]?.isBomb) {
-        const destroyedCount = processExplosionAndGravity([[pos.r, pos.c]], [[pos.r, pos.c]]);
+        const destroyedCount = processExplosionAndGravity([[pos.r,pos.c]], [[pos.r,pos.c]]);
         const points = applyScore(destroyedCount);
-        spawnFloatingText(
-            pos.c * BLOCK_SIZE + BLOCK_SIZE / 2,
-            pos.r * BLOCK_SIZE + BLOCK_SIZE / 2,
-            `+${points}`,
-            isCombo ? '#f5a623' : '#3452eb'
-        );
         triggerBonusState();
+        spawnFloatingText(pos.c * BLOCK_SIZE + BLOCK_SIZE / 2, pos.r * BLOCK_SIZE + BLOCK_SIZE / 2, `+${points}`, getComboTierColor(getComboTier(comboCount)));
         isSelecting = false;
         return;
     }
-
     isSelecting = true;
     startCol = currentCol = pos.c;
     startRow = currentRow = pos.r;
@@ -866,63 +1079,117 @@ function handleStart(e) {
 function handleMove(e) {
     if (!gameStarted || !gameRunning || !isSelecting) return;
     const pos = getGridPos(e);
-    currentCol = pos.c;
-    currentRow = pos.r;
+    currentCol = pos.c; currentRow = pos.r;
 }
 
 function handleEnd() {
     if (!gameStarted || !gameRunning || !isSelecting) return;
-    const { total, cells, bombCells } = getSumInRect(startCol, startRow, currentCol, currentRow);
-
-    if (total === 10 && cells.length >= 2) {
+    const {total, cells, bombCells} = getSumInRect(startCol, startRow, currentCol, currentRow);
+    if (total === TARGET_SUM && cells.length >= 2) {
         const destroyedCount = processExplosionAndGravity(cells, bombCells);
         const points = applyScore(destroyedCount);
-
-        const centerX = (Math.min(startCol, currentCol) + Math.max(startCol, currentCol) + 1) / 2 * BLOCK_SIZE;
-        const centerY = (Math.min(startRow, currentRow) + Math.max(startRow, currentRow) + 1) / 2 * BLOCK_SIZE;
-        spawnFloatingText(centerX, centerY, `+${points}`, isCombo ? '#f5a623' : '#3452eb');
         triggerBonusState();
+        const cx = (Math.min(startCol,currentCol) + Math.max(startCol,currentCol) + 1)/2 * BLOCK_SIZE;
+        const cy = (Math.min(startRow,currentRow) + Math.max(startRow,currentRow) + 1)/2 * BLOCK_SIZE;
+        spawnFloatingText(cx, cy, `+${points}`, getComboTierColor(getComboTier(comboCount)));
     }
-
     isSelecting = false;
     startCol = startRow = currentCol = currentRow = -1;
     selectionSumEl.style.display = 'none';
 }
 
 canvas.addEventListener('mousedown', handleStart);
-canvas.addEventListener('mousemove', handleMove);
-canvas.addEventListener('mouseup', handleEnd);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); handleStart(e); });
-canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e); });
-canvas.addEventListener('touchend', e => { e.preventDefault(); handleEnd(); });
+canvas.addEventListener('touchstart', e => { 
+    e.preventDefault(); 
+    handleStart(e); 
+}, { passive: false });
+
+window.addEventListener('mousemove', handleMove);
+window.addEventListener('mouseup', handleEnd);
+
+window.addEventListener('touchmove', e => {
+    if (isSelecting) {
+        if (e.cancelable) e.preventDefault();
+        handleMove(e);
+    }
+}, { passive: false });
+
+window.addEventListener('touchend', handleEnd);
+window.addEventListener('touchcancel', handleEnd);
 
 function startGame() {
-    if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        loadSounds();
-    } else if (audioCtx.state === 'suspended') {
-        audioCtx.resume().catch(() => {});
-    }
+    if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); loadSounds(); }
+    else if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
 
-    startScreen.hidden = true;
-    gameOverScreen.hidden = true;
-    score = 0;
-    scoreEl.textContent = '0';
+    const activeOverlay = !startScreen.hidden ? startScreen : (!gameOverScreen.hidden ? gameOverScreen : null);
+
+    gameHud.classList.add('visible');
+
+    canvasWrap.classList.remove('home-hidden');
+    canvasWrap.classList.remove('board-enter');
+    void canvasWrap.offsetWidth;
+    canvasWrap.classList.add('board-enter');
+
+    score = 0; scoreEl.textContent = '0';
     initGrid();
-
     tickTimer = 0;
-    playSound('click'); 
-    gameStarted = true;
-    gameRunning = true;
+    playSound('click');
+    gameStarted = true; gameRunning = true;
     lastTime = performance.now();
+
+    if (activeOverlay) {
+        activeOverlay.classList.add('overlay-exit');
+        setTimeout(() => {
+            startScreen.hidden = true;
+            gameOverScreen.hidden = true;
+            activeOverlay.classList.remove('overlay-exit');
+        }, 280);
+    } else {
+        startScreen.hidden = true;
+        gameOverScreen.hidden = true;
+    }
+}
+
+function goHome() {
+    gameStarted = false;
+    gameRunning = false;
+    isSelecting = false;
+    selectionSumEl.style.display = 'none';
+    canvasWrap.classList.add('home-hidden');
+    comboBadge.classList.remove('show', 'tier1', 'tier2', 'tier3');
+    gameHud.classList.remove('visible');
+    startScreen.classList.remove('overlay-exit');
+    gameOverScreen.classList.remove('overlay-exit');
+    gameOverScreen.hidden = true;
+    startScreen.hidden = false;
 }
 
 startBtn.addEventListener('click', startGame);
 restartBtn.addEventListener('click', startGame);
+homeBtn.addEventListener('click', goHome);
+
+function fitApp() {
+    const frame = document.getElementById('phoneFrame');
+    if (!frame) return;
+    
+    const availW = window.innerWidth;
+    const availH = window.innerHeight;
+    const scale = Math.min(availW / 320, availH / 640, 1.2);
+    
+    frame.style.position = 'absolute';
+    frame.style.left = '50%';
+    frame.style.top = '50%';
+    frame.style.transform = `translate(-50%, -50%) scale(${Math.max(scale, 0.1)})`;
+}
+window.addEventListener('resize', fitApp);
+window.addEventListener('orientationchange', () => setTimeout(fitApp, 150));
+fitApp();
 
 initGrid();
+startScreen.hidden = false;
+gameOverScreen.hidden = true;
+updateBestDisplay();
 requestAnimationFrame(gameLoop);
 </script>
-
 </body>
 </html>
